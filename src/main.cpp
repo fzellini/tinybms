@@ -67,11 +67,15 @@ Bsm bsm(681,822, set_state);
 Adc adc;
 
 int main(){
+
     init();
+
+    DDRB |= ((1 << PB0)|(1<<PB4));
+    set_state(BsmState::OFF);
+
     initTXPin(); // tiny serial 
     setupWatchdog();
 
-    DDRB |= ((1 << PB0)|(1<<PB4));    
 
     Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_ATTINY_SERIAL_OUT));
     delay(200);
