@@ -23,6 +23,9 @@ A voltage of 3.8V corresponds to a scaled value of 822
 ## Schematic diagram
 ![schematic diagram](tinybms.png)
 
+## pcb
+![image](https://github.com/user-attachments/assets/e9e6ac01-f1af-419d-802d-0e3b83629764)
+
 
 [first prototype video](https://www.youtube.com/watch?v=vm5XbdbVL_Y)
 
