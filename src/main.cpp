@@ -73,7 +73,8 @@ int main(){
 
     DDRB |= ((1 << PB0)|(1<<PB4));    
 
-    Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_ATTINY_SERIAL_OUT));    
+    Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_ATTINY_SERIAL_OUT));
+    delay(200);
     
     // setup ADC
     adc.setup();
