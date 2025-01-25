@@ -20,7 +20,11 @@ For example:
 A voltage of 3.15V corresponds to a scaled value of 682.\
 A voltage of 3.8V corresponds to a scaled value of 822
 
+
 # Second version, with periodic reset
+I added a periodic reset feature in the second version, utilizing a MOSFET to briefly pull down the RESET signal of the main processor.\
+Firmware default is a reset each 24 hours
+
 ## Schematic diagram
 ![schematic diagram](https://github.com/user-attachments/assets/02e85fed-28e0-4027-a678-af4b723c1b3a)
 
