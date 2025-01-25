@@ -20,16 +20,25 @@ For example:
 A voltage of 3.15V corresponds to a scaled value of 682.\
 A voltage of 3.8V corresponds to a scaled value of 822
 
+# Second version, with periodic reset
+## Schematic diagram
+![schematic diagram](https://github.com/user-attachments/assets/02e85fed-28e0-4027-a678-af4b723c1b3a)
+
+## pcb 3d model
+![image](https://github.com/user-attachments/assets/5aae3512-722c-4964-b96a-51b669fd800a)
+
+
+# First version
 ## Schematic diagram
 ![schematic diagram](tinybms.png)
 
-## pcb
+## pcb 3d model
 ![image](https://github.com/user-attachments/assets/e9e6ac01-f1af-419d-802d-0e3b83629764)
 
 ## video
 [first prototype video](https://www.youtube.com/watch?v=vm5XbdbVL_Y)
 
-## first PCB
+## PCB
 ![first PCB](https://github.com/user-attachments/assets/c3d5bb65-e20c-4ee7-ad5e-f71f9faf53b6)
 
 **Warning!!**, this version of pcb has non-standard programming socket.\
