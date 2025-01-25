@@ -6,7 +6,6 @@
 
 
 #define TX_PIN PIN_PB2
-#include "ATtinySerialOut.hpp"
 
 #include "Bsm.h"
 #include "Adc.h"
@@ -60,11 +59,9 @@ void enterSleep() {
 void set_state(BsmState state){
     if (state==BsmState::OFF){
         PORTB |= (1 << PB0);
-        Serial.println(F("OFF"));
     }
     if (state==BsmState::ON){
         PORTB &= ~(1 << PB0);
-        Serial.println(F("ON"));
     }
 }
 
@@ -79,19 +76,23 @@ void set_state(BsmState state){
 Bsm bsm(681,822, set_state);
 Adc adc;
 
+#define RESET_COUNTER_TIMEOUT 21600 /* 24h*/
 int main(){
+    uint16_t reset_counter=RESET_COUNTER_TIMEOUT;
 
     init();
 
 
-    PORTB |= (1 << PB0);
-    DDRB |= ((1 << PB0)|(1<<PB4));
+    // PB0 drives PMOS switch ( low = ON)
+    // PB4 drive NMOS switch to read battery voltage ( high=READ)
+    // PB2/SCK drive RESET, deploying a periodic pulse
 
-    initTXPin(); // tiny serial 
+    PORTB |= ((1 << PB0));
+    DDRB  |= ((1 << PB0)|(1 << PB2)|(1 << PB4));
+
     setupWatchdog();
     
     delay(100);
-    Serial.println(F("START " __FILE__ " from " __DATE__ ));
     
     // setup ADC
     adc.setup();
@@ -103,11 +104,16 @@ int main(){
         uint16_t raw = adc.read();
         bsm.sm(raw);
         PORTB &= ~(1 << PB4); // spengo il mosfet del partitore
-        Serial.print(F("adc: "));
-        Serial.println(raw);
         adc.disable();
         goToSleep();         // entra in sleep fino al prossimo interrupt
+        if (--reset_counter==0){
+            // generate reset pulse
+            PORTB|=(1<<PB2);            
+            delay(150);
+            PORTB&=~(1<<PB2);
 
+            reset_counter = RESET_COUNTER_TIMEOUT;
+        }
     }
 
 }
