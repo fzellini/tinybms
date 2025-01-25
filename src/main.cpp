@@ -26,6 +26,19 @@ void setupWatchdog() {
     WDTCR |= (1 << WDIE); // Abilita l'interrupt del Watchdog Timer
 }
 
+
+void goToSleep ()  {
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+    power_all_disable ();  // power off ADC, Timer 0 and 1, serial interface
+    cli();
+    sleep_enable();
+    sei();
+    sleep_cpu();
+    sleep_disable();
+    power_all_enable();    // power everything back on
+    sei();
+}
+
 void enterSleep() {
 
     set_sleep_mode(SLEEP_MODE_PWR_DOWN); // Modalità di sleep a basso consumo
@@ -85,16 +98,15 @@ int main(){
 
 
     while (true){
-
+        adc.enable();
         PORTB |= (1 << PB4);  // accendo il mosfet del partitore
-        adc.enable();         // abilito l'ADC
         uint16_t raw = adc.read();
         bsm.sm(raw);
         PORTB &= ~(1 << PB4); // spengo il mosfet del partitore
         Serial.print(F("adc: "));
         Serial.println(raw);
-        adc.disable();        // disattivo l'ADC
-        enterSleep();         // entra in sleep fino al prossimo interrupt
+        adc.disable();
+        goToSleep();         // entra in sleep fino al prossimo interrupt
 
     }
 
