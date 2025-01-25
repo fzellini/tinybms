@@ -26,11 +26,11 @@ A voltage of 3.8V corresponds to a scaled value of 822
 ## pcb
 ![image](https://github.com/user-attachments/assets/e9e6ac01-f1af-419d-802d-0e3b83629764)
 
-
+## video
 [first prototype video](https://www.youtube.com/watch?v=vm5XbdbVL_Y)
 
+## first PCB
 ![first PCB](https://github.com/user-attachments/assets/c3d5bb65-e20c-4ee7-ad5e-f71f9faf53b6)
 
-Warning, this version of pcb has non-standard programming socket.\
+**Warning!!**, this version of pcb has non-standard programming socket.\
 Double check pinout before programming
-
