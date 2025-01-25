@@ -70,15 +70,15 @@ int main(){
 
     init();
 
+
+    PORTB |= (1 << PB0);
     DDRB |= ((1 << PB0)|(1<<PB4));
-    set_state(BsmState::OFF);
 
     initTXPin(); // tiny serial 
     setupWatchdog();
-
-
-    Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_ATTINY_SERIAL_OUT));
-    delay(200);
+    
+    delay(100);
+    Serial.println(F("START " __FILE__ " from " __DATE__ ));
     
     // setup ADC
     adc.setup();
