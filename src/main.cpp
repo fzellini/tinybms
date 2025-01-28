@@ -57,8 +57,8 @@ void set_state(BsmState state){
 }
 
 
-#define BMS_LOW  (int)((VLOW / 1.1 / (RLOW+RHIGH)) * 10 * 1024)
-#define BMS_HIGH  (int)((VHIGH / 1.1 / (RLOW+RHIGH)) * 10 * 1024)
+#define BMS_LOW  (int)((VLOW/1.1/(RLOW+RHIGH))*RLOW*1024)
+#define BMS_HIGH (int)((VHIGH/1.1/(RLOW+RHIGH))*RLOW*1024)
 
 
 Bsm bsm(BMS_LOW,BMS_HIGH, set_state);
