@@ -4,7 +4,6 @@
 #include <string.h>
 #include <avr/power.h>
 
-#include "ATtinySerialOut.h"
 #include "Adc.h"
 
 Adc::Adc(){
