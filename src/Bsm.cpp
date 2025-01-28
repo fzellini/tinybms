@@ -3,12 +3,10 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "ATtinySerialOut.h"
 #include "Bsm.h"
 
 
 Bsm::Bsm(uint16_t low, uint16_t high, void (*set_state_fn)(BsmState)){
-    Serial.println("Costruttore");
     this->low = low;
     this->high = high;
     this->set_state_fn = set_state_fn;

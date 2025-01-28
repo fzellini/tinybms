@@ -58,15 +58,14 @@ uint16_t Adc::read(){
 
 void Adc::disable(){
     // power_adc_disable();
-    // ADCSRA &=~(1<<ADEN);
-    // PRR |= (1 << PRADC);    
+    ADCSRA &=~(1<<ADEN);
+    PRR |= (1 << PRADC);
     // write also PRR ?
 
 }
 
 void Adc::enable(){
-    // PRR &= ~(1 << PRADC); 
-    // ADCSRA |=(1<<ADEN);
+    PRR &= ~(1 << PRADC);
+    ADCSRA |=(1<<ADEN);
     // power_adc_enable();
-    
 }
