@@ -73,7 +73,12 @@ void set_state(BsmState state){
 822.6638477801268
 
 */
-Bsm bsm(681,822, set_state);
+
+#define BMS_LOW  (int)((VLOW / 1.1 / (RLOW+RHIGH)) * 10 * 1024)
+#define BMS_HIGH  (int)((VHIGH / 1.1 / (RLOW+RHIGH)) * 10 * 1024)
+
+
+Bsm bsm(BMS_LOW,BMS_HIGH, set_state);
 Adc adc;
 
 #define RESET_COUNTER_TIMEOUT 21600 /* 24h*/
