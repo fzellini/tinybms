@@ -5,20 +5,15 @@ If the battery voltage drops below a minimum safe threshold, the system disconne
 The load will only be reconnected once the battery voltage recovers above a maximum safe threshold.
 
 Both the minimum and maximum thresholds are configurable, providing flexibility for different battery types and applications.\
-To configure the thresholds, modify the instantiation of the Bsm object in main.c as follows:
+To configure the thresholds, modify **platformio.ini** build_flags:
 
-`Bsm bsm(681,822, set_state);`
+`-D VLOW=$VLOW -D VHIGH=$VHIGH`
 
-The first parameter (681) corresponds to the scaled value of the low voltage threshold.\
-The second parameter (822) corresponds to the scaled value of the high voltage threshold.\
-To calculate these scaled values for a given voltage, use the formula:
+$VLOW is low voltage disconnect, $VHIGH is high voltage reconnect
 
-`scaled_value = int((VOLTAGE / 1.1 / 43) * 10 * 1024)`
+E.g. 
 
-For example:
-
-A voltage of 3.15V corresponds to a scaled value of 682.\
-A voltage of 3.8V corresponds to a scaled value of 822
+`-D VLOW=3.1 -D VHIGH=3.82`
 
 
 # Second version, with periodic reset
