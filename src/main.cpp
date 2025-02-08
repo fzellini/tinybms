@@ -38,42 +38,30 @@ void goToSleep ()  {
     sei();
 }
 
-void enterSleep() {
-
-    set_sleep_mode(SLEEP_MODE_PWR_DOWN); // Modalità di sleep a basso consumo
-    cli(); // Disabilita gli interrupt globali
-    sleep_enable(); // Abilita la modalità di sleep
-
-    sei(); // Riabilita gli interrupt globali
-    power_all_disable();
-
-    sleep_cpu(); // Mette il microcontrollore in sleep
-
-    power_all_enable();
-
-    sleep_disable(); // Disabilita la modalità sleep dopo il risveglio
-    sei(); // Assicurati che gli interrupt siano abilitati
-}
-
 
 void set_state(BsmState state){
     if (state==BsmState::OFF){
-        PORTB |= (1 << PB0);
+        #ifndef LDO
+            PORTB |= (1 << PB0);
+        #else
+            PORTB &= ~(1 << PB0);
+        #endif
     }
     if (state==BsmState::ON){
-        PORTB &= ~(1 << PB0);
+        #ifndef LDO
+            PORTB &= ~(1 << PB0);
+        #else
+            PORTB |= (1 << PB0);
+        #endif
     }
 }
 
-// todo: add checksum and set low-hi outside of constructor
-/*
->>> (3.15/1.1/43)*10*1024
-681.9450317124735
->>> (3.80/1.1/43)*10*1024
-822.6638477801268
 
-*/
-Bsm bsm(681,822, set_state);
+#define BMS_LOW  (int)((VLOW/1.1/(RLOW+RHIGH))*RLOW*1024)
+#define BMS_HIGH (int)((VHIGH/1.1/(RLOW+RHIGH))*RLOW*1024)
+
+
+Bsm bsm(BMS_LOW,BMS_HIGH, set_state);
 Adc adc;
 
 #define RESET_COUNTER_TIMEOUT 21600 /* 24h*/
@@ -83,12 +71,22 @@ int main(){
     init();
 
 
+
+    #ifndef LDO
     // PB0 drives PMOS switch ( low = ON)
     // PB4 drive NMOS switch to read battery voltage ( high=READ)
     // PB2/SCK drive RESET, deploying a periodic pulse
 
-    PORTB |= ((1 << PB0));
-    DDRB  |= ((1 << PB0)|(1 << PB2)|(1 << PB4));
+        PORTB |= ((1 << PB0));      // default high
+        DDRB  |= ((1 << PB0)|(1 << PB2)|(1 << PB4));
+    #else
+    // PB0 drives PMOS switch ( high = ON)
+    // PB4 drive NMOS switch to read battery voltage ( high=READ)
+    // PB2/SCK drive RESET, deploying a periodic pulse
+
+        DDRB  |= ((1 << PB0)|(1 << PB2)|(1 << PB4));
+
+    #endif
 
     setupWatchdog();
     
