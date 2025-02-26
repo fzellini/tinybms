@@ -3,15 +3,18 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "Filt.h"
 #include "Bsm.h"
 
 
-Bsm::Bsm(uint16_t low, uint16_t high, void (*set_state_fn)(BsmState)){
+
+Bsm::Bsm(uint16_t low, uint16_t high, Filt* filter,void (*set_state_fn)(BsmState)) {
     this->low = low;
     this->high = high;
     this->set_state_fn = set_state_fn;
     this->state = BsmState::UNDEFINED;
     this->last_state = BsmState::UNDEFINED;    
+    this->lp_filter = filter;
 }
 
 BsmState Bsm::get_state(){
@@ -29,6 +32,14 @@ void Bsm::set_state(BsmState new_state){
 
 void Bsm::sm(uint16_t voltage){
     BsmEvent event = BsmEvent::IN_RANGE;
+/*
+    if (this->state == BsmState::UNDEFINED){
+        this->lp_filter->init(voltage);
+    }
+*/
+    // get voltage from filter
+    voltage = this->lp_filter->push(voltage);
+
     if (voltage > this->high) event = BsmEvent::ABOVE;
     if (voltage < this->low) event = BsmEvent::BELOW;
 

@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "Filt.h"
 
 #ifndef bsm_h
   #define bsm_h
@@ -21,7 +22,7 @@ enum class BsmEvent{
 class Bsm{
   public:
     // constructor
-    Bsm(uint16_t low, uint16_t high, void (*set_state_fn)(BsmState));
+    Bsm(uint16_t low, uint16_t high, Filt *filt ,void (*set_state_fn)(BsmState));
     void sm(uint16_t voltage);    
     
     BsmState get_state();
@@ -32,6 +33,7 @@ private:
     BsmState last_state;
     uint16_t low;
     uint16_t high;
+    Filt *lp_filter;
     void (*set_state_fn)(BsmState);
 
 };

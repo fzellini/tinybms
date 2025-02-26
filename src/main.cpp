@@ -60,8 +60,10 @@ void set_state(BsmState state){
 #define BMS_LOW  (int)((VLOW/1.1/(RLOW+RHIGH))*RLOW*1024)
 #define BMS_HIGH (int)((VHIGH/1.1/(RLOW+RHIGH))*RLOW*1024)
 
+#define FILT_PAR 2  // taps = 2<<FILT_PAR
 
-Bsm bsm(BMS_LOW,BMS_HIGH, set_state);
+Filt filt(FILT_PAR);
+Bsm bsm(BMS_LOW,BMS_HIGH, &filt, set_state);
 Adc adc;
 
 #define RESET_COUNTER_TIMEOUT 21600 /* 24h*/
@@ -89,12 +91,17 @@ int main(){
     #endif
 
     setupWatchdog();
-    
     delay(100);
-    
     // setup ADC
     adc.setup();
 
+    // preload digital filter
+    adc.enable();
+    PORTB |= (1 << PB4);  // accendo il mosfet del partitore
+    for (int i=0; i< (2<<(FILT_PAR+1)); i++) {
+        filt.push(adc.read());
+        delay(10);
+    }
 
     while (true){
         adc.enable();
