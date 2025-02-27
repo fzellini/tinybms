@@ -60,19 +60,30 @@ void set_state(BsmState state){
 #define BMS_LOW  (int)((VLOW/1.1/(RLOW+RHIGH))*RLOW*1024)
 #define BMS_HIGH (int)((VHIGH/1.1/(RLOW+RHIGH))*RLOW*1024)
 
-#define FILT_PAR 2  // taps = 2<<FILT_PAR
+#define FILT_PAR_OFF 2  // taps = 2<<FILT_PAR
+#define FILT_PAR_ON 3  // taps = 2<<FILT_PAR
 
-Filt filt(FILT_PAR);
-Bsm bsm(BMS_LOW,BMS_HIGH, &filt, set_state);
+Filt filt_off(FILT_PAR_OFF);
+Filt filt_on(FILT_PAR_ON);
+Bsm bsm(BMS_LOW,BMS_HIGH, &filt_off, &filt_on, set_state);
 Adc adc;
 
-#define RESET_COUNTER_TIMEOUT 21600 /* 24h*/
+uint32_t offset = 0;
+
+void setMillis(uint32_t newMillis) {
+  offset = newMillis - millis();
+}
+
+uint32_t getMillis() {
+  return millis() + offset;
+}
+
+#define RESET_COUNTER_TIMEOUT (86400*1000)
+
 int main(){
-    uint16_t reset_counter=RESET_COUNTER_TIMEOUT;
 
     init();
-
-
+    setMillis(0);
 
     #ifndef LDO
     // PB0 drives PMOS switch ( low = ON)
@@ -98,10 +109,15 @@ int main(){
     // preload digital filter
     adc.enable();
     PORTB |= (1 << PB4);  // accendo il mosfet del partitore
-    for (int i=0; i< (2<<(FILT_PAR+1)); i++) {
-        filt.push(adc.read());
+    for (int i=0; i< (2<<(FILT_PAR_OFF+1)); i++) {
+        filt_off.push(adc.read());
         delay(10);
     }
+    for (int i=0; i< (2<<(FILT_PAR_ON+1)); i++) {
+        filt_on.push(adc.read());
+        delay(10);
+    }
+
 
     while (true){
         adc.enable();
@@ -109,15 +125,22 @@ int main(){
         uint16_t raw = adc.read();
         bsm.sm(raw);
         PORTB &= ~(1 << PB4); // spengo il mosfet del partitore
-        adc.disable();
-        goToSleep();         // entra in sleep fino al prossimo interrupt
-        if (--reset_counter==0){
-            // generate reset pulse
-            PORTB|=(1<<PB2);            
-            delay(150);
-            PORTB&=~(1<<PB2);
 
-            reset_counter = RESET_COUNTER_TIMEOUT;
+        if (bsm.get_state() == BsmState::OFF){
+            setMillis(0);
+            adc.disable();
+            goToSleep();         // entra in sleep fino al prossimo interrupt
+        } else {
+            delay(10);
+            uint32_t ms = getMillis();
+            if (ms > RESET_COUNTER_TIMEOUT){
+                // generate reset pulse
+                PORTB|=(1<<PB2);
+                delay(150);
+                PORTB&=~(1<<PB2);
+                setMillis(0);
+            }
+
         }
     }
 
