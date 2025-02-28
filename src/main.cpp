@@ -53,19 +53,29 @@ void set_state(BsmState state){
         #else
             PORTB |= (1 << PB0);
         #endif
+        // small delay after power on
+        delay(200);
     }
 }
 
 
-#define BMS_LOW  (int)((VLOW/1.1/(RLOW+RHIGH))*RLOW*1024)
-#define BMS_HIGH (int)((VHIGH/1.1/(RLOW+RHIGH))*RLOW*1024)
+#define BMS_SPIKE (uint16_t)((VSPIKE/1.1/(RLOW+RHIGH))*RLOW*1024.)
+#define BMS_LOW  (uint16_t)((VLOW/1.1/(RLOW+RHIGH))*RLOW*1024.)
+#define BMS_HIGH (uint16_t)((VHIGH/1.1/(RLOW+RHIGH))*RLOW*1024.)
+
 
 #define FILT_PAR_OFF 2  // taps = 2<<FILT_PAR
-#define FILT_PAR_ON 3  // taps = 2<<FILT_PAR
+#define FILT_PAR_ON 9  // taps = 2<<FILT_PAR
+#define FILT_PAR_SPIKE 1
+
+
+// averaging filter
+Filt filt_on(FILT_PAR_ON);
 
 Filt filt_off(FILT_PAR_OFF);
-Filt filt_on(FILT_PAR_ON);
-Bsm bsm(BMS_LOW,BMS_HIGH, &filt_off, &filt_on, set_state);
+Filt filt_spike(FILT_PAR_SPIKE);
+
+Bsm bsm( BMS_SPIKE, &filt_spike ,BMS_LOW, &filt_off, BMS_HIGH, &filt_on,  set_state);
 Adc adc;
 
 uint32_t offset = 0;
@@ -81,6 +91,7 @@ uint32_t getMillis() {
 #define RESET_COUNTER_TIMEOUT (86400*1000)
 
 int main(){
+    uint16_t v;
 
     init();
     setMillis(0);
@@ -110,26 +121,25 @@ int main(){
     adc.enable();
     PORTB |= (1 << PB4);  // accendo il mosfet del partitore
     for (int i=0; i< (2<<(FILT_PAR_OFF+1)); i++) {
-        filt_off.push(adc.read());
+        v = adc.read();
+        v = filt_off.push(v);
         delay(10);
     }
-    for (int i=0; i< (2<<(FILT_PAR_ON+1)); i++) {
-        filt_on.push(adc.read());
-        delay(10);
-    }
-
+    filt_on.init(v);
+    filt_spike.init(v);
 
     while (true){
-        adc.enable();
-        PORTB |= (1 << PB4);  // accendo il mosfet del partitore
+
         uint16_t raw = adc.read();
         bsm.sm(raw);
-        PORTB &= ~(1 << PB4); // spengo il mosfet del partitore
 
         if (bsm.get_state() == BsmState::OFF){
+            PORTB &= ~(1 << PB4); // spengo il mosfet del partitore
             setMillis(0);
             adc.disable();
             goToSleep();         // entra in sleep fino al prossimo interrupt
+            adc.enable();
+            PORTB |= (1 << PB4);  // accendo il mosfet del partitore
         } else {
             delay(10);
             uint32_t ms = getMillis();
@@ -140,10 +150,8 @@ int main(){
                 PORTB&=~(1<<PB2);
                 setMillis(0);
             }
-
         }
     }
-
 }
 
 
