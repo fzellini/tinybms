@@ -22,7 +22,7 @@ enum class BsmEvent{
 class Bsm{
   public:
     // constructor
-    Bsm(uint16_t low, uint16_t high, Filt * , Filt *, void (*set_state_fn)(BsmState));
+    Bsm(uint16_t, Filt *, uint16_t, Filt *, uint16_t,  Filt *, void (*set_state_fn)(BsmState));
     void sm(uint16_t voltage);
     
     BsmState get_state();
@@ -31,10 +31,12 @@ class Bsm{
 private:
     BsmState state;
     BsmState last_state;
+    uint16_t low_spike;
     uint16_t low;
     uint16_t high;
     Filt *filter_off;
     Filt *filter_on;
+    Filt *filter_spike;
     void (*set_state_fn)(BsmState);
 
 };
