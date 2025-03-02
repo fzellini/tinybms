@@ -88,7 +88,7 @@ uint32_t getMillis() {
   return millis() + offset;
 }
 
-#define RESET_COUNTER_TIMEOUT (86400*1000)
+#define RESET_COUNTER_TIMEOUT (RESET_PERIOD*1000)
 
 int main(){
     uint16_t v;
