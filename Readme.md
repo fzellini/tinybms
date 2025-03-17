@@ -15,6 +15,11 @@ E.g.
 
 `-D VLOW=3.1 -D VHIGH=3.82`
 
+# Third version
+More compact design 
+
+![image](https://github.com/user-attachments/assets/296d596c-38b9-4501-847a-0b7628501080)
+
 
 # Second version, with periodic reset
 I added a periodic reset feature in the second version, utilizing a MOSFET to briefly pull down the RESET signal of the main processor.\
